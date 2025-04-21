@@ -2,97 +2,130 @@
 
 A versatile tool for extracting and calculating numbers from images, with both CLI and GUI options.
 
+## Windows Installation Guide
+
+1. **Install Python:**
+   - Download Python 3.7 or higher from [python.org](https://www.python.org/downloads/)
+   - During installation, make sure to check "Add Python to PATH"
+   - Verify installation by opening Command Prompt and typing:
+     ```
+     python --version
+     ```
+
+2. **Install Tesseract OCR:**
+   - Download the Tesseract installer from [UB-Mannheim](https://github.com/UB-Mannheim/tesseract/wiki)
+   - Run the installer (e.g., `tesseract-ocr-w64-setup-5.3.1.20230401.exe`)
+   - During installation:
+     - Choose your installation path (remember this path!)
+     - Select "English" under "Additional language data"
+   - Add Tesseract to System PATH:
+     1. Search for "Environment Variables" in Windows search
+     2. Click "Environment Variables"
+     3. Under "System Variables", find and select "Path"
+     4. Click "Edit" → "New"
+     5. Add your Tesseract installation path (e.g., `C:\Program Files\Tesseract-OCR`)
+     6. Click "OK" to save
+
+3. **Setup SnippingCalc:**
+   - Extract the downloaded ZIP file
+   - Open Command Prompt as Administrator
+   - Navigate to the extracted folder:
+     ```
+     cd path\to\extracted\snippingcalc
+     ```
+   - Install required Python packages:
+     ```
+     pip install -r requirements.txt
+     ```
+
+4. **Test the Installation:**
+   ```
+   cd src
+   python create_test_image.py
+   python cli_snip.py test_numbers.png
+   ```
+   If you see the results, the basic functionality is working!
+
+5. **Run the Background Application:**
+   ```
+   python background_app.py
+   ```
+   - Press Ctrl+Shift+S to activate the screen capture
+   - Click and drag to select an area with numbers
+   - Results will appear in a floating window
+
+## Troubleshooting (Windows)
+
+### If Tesseract is not found:
+1. Verify Tesseract installation:
+   - Open Command Prompt
+   - Run: `tesseract --version`
+   - If not found, check System PATH
+
+2. Set TESSERACT_CMD environment variable:
+   ```python
+   import pytesseract
+   pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+   ```
+   Add this to the start of any Python script if needed.
+
+### If hotkey doesn't work:
+1. Run as Administrator:
+   - Right-click `background_app.py`
+   - Select "Run as Administrator"
+
+2. Check for conflicts:
+   - Ensure no other application uses Ctrl+Shift+S
+   - Try changing the hotkey in `background_app.py`
+
+### If screen capture fails:
+1. Check display scaling:
+   - Windows Settings → Display → Scale and layout
+   - Try setting to 100%
+
+2. Run with compatibility mode:
+   - Right-click `background_app.py`
+   - Properties → Compatibility
+   - Check "Run this program in compatibility mode"
+
 ## Features
 
-- Extract numbers from images using OCR (Optical Character Recognition)
-- Calculate SUM, AVERAGE, and COUNT of detected numbers
+- Extract numbers from images using OCR
+- Calculate SUM, AVERAGE, and COUNT
 - Multiple operation modes:
   - CLI mode for processing existing images
-  - Background mode with global hotkey for screen capture (requires desktop environment)
-- Save results to JSON files for later reference
-- Support for various image formats (PNG, JPG, etc.)
+  - Background mode with global hotkey
+- Save results to JSON files
+- Support for various image formats
 
-## Requirements
-
-- Python 3.7 or higher
-- Tesseract OCR engine
-- Required Python packages (installed via pip)
-- For background mode: X server (Linux) or Windows/macOS desktop environment
-
-## Installation
-
-1. Install Tesseract OCR:
-   ```bash
-   # Ubuntu/Debian
-   sudo apt-get install tesseract-ocr
-
-   # macOS
-   brew install tesseract
-
-   # Windows
-   # Download and install from: https://github.com/UB-Mannheim/tesseract/wiki
-   ```
-
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Usage
+## Usage Examples
 
 ### CLI Mode
-Process existing image files:
-
 ```bash
-python src/cli_snip.py <image_path>
-```
+# Process a specific image
+python src/cli_snip.py path/to/your/image.png
 
-Example:
-```bash
+# Create and process a test image
+python src/create_test_image.py
 python src/cli_snip.py test_numbers.png
 ```
 
-### Background Mode (Desktop Environment Required)
-Run as a background application with global hotkey:
-
+### Background Mode
 ```bash
+# Start the background application
 python src/background_app.py
+
+# Use Ctrl+Shift+S to capture
+# Click and drag to select area
 ```
 
-Features:
-- Global hotkey (Ctrl+Shift+S) to activate screen capture
-- Click and drag to select area
-- Results shown in floating window
-- Copy results to clipboard
-- Auto-save results to JSON file
+## Output Format
 
-### Test Image Creation
-Create a test image with known numbers:
-
-```bash
-python src/create_test_image.py
-```
-
-## Operation Modes
-
-1. CLI Mode (`cli_snip.py`):
-   - Best for processing existing images
-   - Works in any environment
-   - Ideal for automation and scripting
-
-2. Background Mode (`background_app.py`):
-   - Requires desktop environment (X server on Linux, or Windows/macOS)
-   - Global hotkey activation
-   - Interactive screen capture
-   - Floating results window
-   - Clipboard integration
-
-## Output
-
-The tool provides:
-- Console output with calculations
-- JSON file with detailed results
-- (Background mode) GUI window with results and copy option
+The tool provides results in multiple formats:
+1. Console output
+2. JSON file (saved automatically)
+3. Floating window (in background mode)
+4. Clipboard (in background mode)
 
 Example output:
 ```
@@ -103,35 +136,19 @@ COUNT: 5
 Numbers found: 123.45, 678.90, 1234.56, 90.12, 456.78
 ```
 
-## System Requirements
+## Creating a Desktop Shortcut (Windows)
 
-### For CLI Mode:
-- Any operating system with Python support
-- Terminal/Command Prompt access
-- Tesseract OCR installed
-
-### For Background Mode:
-- Linux: X server and DISPLAY environment variable set
-- Windows: No additional requirements
-- macOS: No additional requirements
-
-## Troubleshooting
-
-### CLI Mode Issues:
-1. Verify Tesseract OCR installation
-2. Check image quality and contrast
-3. Ensure proper file paths
-
-### Background Mode Issues:
-1. Linux: Ensure X server is running and DISPLAY is set
-2. Permission issues: Run with appropriate permissions
-3. Hotkey conflicts: Check for other applications using same hotkey
-
-## Development Notes
-
-- `background_app.py`: Full-featured GUI application with global hotkey
-- `cli_snip.py`: Command-line interface for basic functionality
-- `create_test_image.py`: Test image generator for verification
+1. Right-click on the desktop → New → Shortcut
+2. Enter the command:
+   ```
+   pythonw path\to\snippingcalc\src\background_app.py
+   ```
+3. Name it "SnippingCalc"
+4. Right-click the shortcut → Properties
+5. Add icon (optional):
+   - Click "Change Icon"
+   - Browse to Python installation
+   - Select python.exe for its icon
 
 ## License
 
