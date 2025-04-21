@@ -2,7 +2,6 @@ import os
 import sys
 import platform
 import subprocess
-import base64
 import winreg
 from pathlib import Path
 
@@ -17,47 +16,30 @@ def check_windows():
 def check_dependencies():
     """Check if all required dependencies are installed"""
     try:
-        import winreg
+        import keyboard
+        import pytesseract
+        from PIL import ImageGrab
         import win32com.client
         return True
     except ImportError as e:
-        print(f"Error: Missing Windows dependencies - {e}")
-        print("Please run: pip install pywin32")
+        print(f"Error: Missing dependencies - {e}")
+        print("Please run: pip install -r requirements.txt")
         return False
-
-def create_icon():
-    """Create icon file from icon_data.py"""
-    try:
-        from src.icon_data import ICON_DATA
-        icon_path = os.path.join('src', 'icon.ico')
-        if not os.path.exists(icon_path):
-            with open(icon_path, 'wb') as icon_file:
-                icon_file.write(base64.b64decode(ICON_DATA.strip()))
-        return icon_path
-    except Exception as e:
-        print(f"Warning: Could not create icon: {e}")
-        return None
 
 def build_executable():
     """Build the executable using PyInstaller"""
     try:
-        # Create icon
-        icon_path = create_icon()
-        
         # Build command
         cmd = [
             'pyinstaller',
             '--noconfirm',
             '--clean',
             '--windowed',
-            '--uac-admin',
+            '--hidden-import=keyboard',
+            '--hidden-import=PIL._tkinter_finder',
             '--name=SnippingCalc',
-            'src/elegant_calc.py'
+            'src/hotkey_app.py'
         ]
-        
-        # Add icon if available
-        if icon_path and os.path.exists(icon_path):
-            cmd.append(f'--icon={icon_path}')
         
         # Run PyInstaller
         subprocess.run(cmd, check=True)
@@ -87,7 +69,6 @@ def create_shortcut():
         shortcut.Targetpath = exe_path
         shortcut.WorkingDirectory = os.path.dirname(exe_path)
         shortcut.Description = "Quick Calculator for Screen Numbers"
-        shortcut.IconLocation = exe_path
         shortcut.save()
         
         # Start Menu shortcut
@@ -98,7 +79,6 @@ def create_shortcut():
         shortcut.Targetpath = exe_path
         shortcut.WorkingDirectory = os.path.dirname(exe_path)
         shortcut.Description = "Quick Calculator for Screen Numbers"
-        shortcut.IconLocation = exe_path
         shortcut.save()
         
         return True
@@ -154,10 +134,9 @@ def main():
         
         print("\nSnippingCalc has been successfully installed!")
         print("\nFeatures:")
-        print("- Press Ctrl+Shift+S to activate")
+        print("- Press Ctrl+Shift+S to start snipping")
         print("- Click and drag to select numbers")
         print("- Results appear automatically")
-        print("- Sum is copied to clipboard")
         print("- Starts automatically with Windows")
         print("\nShortcuts created on Desktop and Start Menu")
         print("You can now use SnippingCalc!")
