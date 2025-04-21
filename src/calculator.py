@@ -1,4 +1,3 @@
-import numpy as np
 from typing import List, Dict
 
 def calculate_stats(numbers: List[float]) -> Dict[str, float]:
@@ -11,25 +10,19 @@ def calculate_stats(numbers: List[float]) -> Dict[str, float]:
     Returns:
         Dictionary containing SUM, AVG, and COUNT values
     """
-    try:
-        if not numbers:
-            return {
-                'SUM': 0.0,
-                'AVG': 0.0,
-                'COUNT': 0
-            }
-        
-        # Calculate statistics
-        total = np.sum(numbers)
-        average = np.mean(numbers)
-        count = len(numbers)
-        
-        # Round results to 2 decimal places
+    if not numbers:
         return {
-            'SUM': round(float(total), 2),
-            'AVG': round(float(average), 2),
-            'COUNT': count
+            'SUM': 0.0,
+            'AVG': 0.0,
+            'COUNT': 0
         }
-        
-    except Exception as e:
-        raise Exception(f"Error calculating statistics: {str(e)}")
+    
+    total = sum(numbers)
+    count = len(numbers)
+    avg = total / count
+    
+    return {
+        'SUM': round(total, 2),
+        'AVG': round(avg, 2),
+        'COUNT': count
+    }
