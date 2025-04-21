@@ -1,154 +1,150 @@
 # SnippingCalc
 
-A versatile tool for extracting and calculating numbers from images, with both CLI and GUI options.
+A Windows application that combines the functionality of the Microsoft Snipping Tool with automatic calculation features (SUM, AVG, COUNT) for numbers in the selected area.
 
-## Windows Installation Guide
+## Features
+
+- Microsoft Snipping Tool-like interface
+- Multiple snipping modes (Rectangular, Free-form, Window, Full-screen)
+- Automatic number recognition in snipped areas
+- Instant calculation of SUM, AVG, and COUNT
+- Delay timer option for snipping
+- Copy results to clipboard
+
+## System Requirements
+
+- Windows 10 or later
+- Python 3.8 or later
+- Tesseract OCR (automatically installed during setup)
+
+## Installation Guide
 
 1. **Install Python:**
-   - Download Python 3.7 or higher from [python.org](https://www.python.org/downloads/)
-   - During installation, make sure to check "Add Python to PATH"
-   - Verify installation by opening Command Prompt and typing:
+   - Download Python 3.8 or later from [python.org](https://www.python.org/downloads/)
+   - During installation, check "Add Python to PATH"
+   - Verify installation by opening Command Prompt:
      ```
      python --version
      ```
 
-2. **Install Tesseract OCR:**
-   - Download the Tesseract installer from [UB-Mannheim](https://github.com/UB-Mannheim/tesseract/wiki)
-   - Run the installer (e.g., `tesseract-ocr-w64-setup-5.3.1.20230401.exe`)
-   - During installation:
-     - Choose your installation path (remember this path!)
-     - Select "English" under "Additional language data"
-   - Add Tesseract to System PATH:
-     1. Search for "Environment Variables" in Windows search
-     2. Click "Environment Variables"
-     3. Under "System Variables", find and select "Path"
-     4. Click "Edit" → "New"
-     5. Add your Tesseract installation path (e.g., `C:\Program Files\Tesseract-OCR`)
-     6. Click "OK" to save
-
-3. **Setup SnippingCalc:**
-   - Extract the downloaded ZIP file
-   - Open Command Prompt as Administrator
-   - Navigate to the extracted folder:
-     ```
-     cd path\to\extracted\snippingcalc
-     ```
-   - Install required Python packages:
-     ```
-     pip install -r requirements.txt
-     ```
-
-4. **Test the Installation:**
+2. **Download and Install SnippingCalc:**
    ```
-   cd src
-   python create_test_image.py
-   python cli_snip.py test_numbers.png
+   # Clone the repository
+   git clone https://github.com/yourusername/snippingcalc.git
+   cd snippingcalc
+
+   # Install dependencies
+   pip install -r requirements.txt
+
+   # Build and install
+   python build_windows.py
    ```
-   If you see the results, the basic functionality is working!
 
-5. **Run the Background Application:**
-   ```
-   python background_app.py
-   ```
-   - Press Ctrl+Shift+S to activate the screen capture
-   - Click and drag to select an area with numbers
-   - Results will appear in a floating window
+   The installer will:
+   - Install required dependencies
+   - Create desktop and start menu shortcuts
+   - Set up auto-start with Windows (optional)
 
-## Troubleshooting (Windows)
+## Using SnippingCalc
 
-### If Tesseract is not found:
-1. Verify Tesseract installation:
-   - Open Command Prompt
-   - Run: `tesseract --version`
-   - If not found, check System PATH
+### Starting the Application
 
-2. Set TESSERACT_CMD environment variable:
-   ```python
-   import pytesseract
-   pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-   ```
-   Add this to the start of any Python script if needed.
+Choose any method:
+1. Double-click the desktop shortcut
+2. Find "SnippingCalc" in the Start Menu
+3. Press Win+S and search for "SnippingCalc"
 
-### If hotkey doesn't work:
-1. Run as Administrator:
-   - Right-click `background_app.py`
-   - Select "Run as Administrator"
+### Basic Usage
 
-2. Check for conflicts:
-   - Ensure no other application uses Ctrl+Shift+S
-   - Try changing the hotkey in `background_app.py`
+1. Launch SnippingCalc
+2. In the main window:
+   - Select snipping mode (Rectangular, Free-form, etc.)
+   - Set delay timer if needed (0-10 seconds)
+   - Click "New Snip" or use shortcut keys
+3. Select the area containing numbers
+4. View results in the popup window:
+   - SUM: Total of all numbers
+   - AVG: Average value
+   - COUNT: Number of values found
+5. Use "Copy" button to copy results to clipboard
 
-### If screen capture fails:
-1. Check display scaling:
-   - Windows Settings → Display → Scale and layout
-   - Try setting to 100%
+### Tips & Tricks
 
-2. Run with compatibility mode:
-   - Right-click `background_app.py`
-   - Properties → Compatibility
-   - Check "Run this program in compatibility mode"
+- Use delay timer when you need to prepare the content before snipping
+- Press ESC to cancel a snip
+- Results window auto-closes after 5 seconds
+- Click and drag results window to move it
+- Right-click tray icon for quick access to options
 
-## Features
+## Troubleshooting
 
-- Extract numbers from images using OCR
-- Calculate SUM, AVERAGE, and COUNT
-- Multiple operation modes:
-  - CLI mode for processing existing images
-  - Background mode with global hotkey
-- Save results to JSON files
-- Support for various image formats
+### Common Issues
 
-## Usage Examples
+1. **Application Won't Start:**
+   - Run as administrator
+   - Check if Python is in PATH
+   - Verify all dependencies are installed
 
-### CLI Mode
-```bash
-# Process a specific image
-python src/cli_snip.py path/to/your/image.png
+2. **Numbers Not Recognized:**
+   - Ensure clear contrast in the image
+   - Check if numbers are clearly visible
+   - Try adjusting screen brightness/contrast
 
-# Create and process a test image
-python src/create_test_image.py
-python src/cli_snip.py test_numbers.png
+3. **OCR Issues:**
+   - Verify Tesseract OCR installation
+   - Try reinstalling the application
+   - Check Windows Event Viewer for errors
+
+### Uninstalling
+
+Method 1: Using Uninstaller
+```
+python build_windows.py uninstall
 ```
 
-### Background Mode
-```bash
-# Start the background application
-python src/background_app.py
+Method 2: Manual Removal
+1. Delete desktop and start menu shortcuts
+2. Remove from Windows startup:
+   - Open Task Manager
+   - Go to Startup tab
+   - Disable SnippingCalc
+3. Delete the installation folder
 
-# Use Ctrl+Shift+S to capture
-# Click and drag to select area
+## Development
+
+Want to contribute? Great!
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+### Project Structure
+```
+snippingcalc/
+├── src/
+│   ├── gui/
+│   │   ├── main_window.py    # Main application window
+│   │   ├── results.py        # Results display window
+│   │   └── selection.py      # Selection overlay
+│   ├── calculator.py         # Calculation logic
+│   └── main.py              # Application entry point
+├── build_windows.py         # Build script
+└── requirements.txt         # Python dependencies
 ```
 
-## Output Format
+## Support
 
-The tool provides results in multiple formats:
-1. Console output
-2. JSON file (saved automatically)
-3. Floating window (in background mode)
-4. Clipboard (in background mode)
+For issues and feature requests:
+1. Check the [FAQ](link-to-faq)
+2. Search existing issues
+3. Create a new issue if needed
 
-Example output:
-```
-Results:
-SUM: 2583.81
-AVG: 516.76
-COUNT: 5
-Numbers found: 123.45, 678.90, 1234.56, 90.12, 456.78
-```
+## Updates
 
-## Creating a Desktop Shortcut (Windows)
-
-1. Right-click on the desktop → New → Shortcut
-2. Enter the command:
-   ```
-   pythonw path\to\snippingcalc\src\background_app.py
-   ```
-3. Name it "SnippingCalc"
-4. Right-click the shortcut → Properties
-5. Add icon (optional):
-   - Click "Change Icon"
-   - Browse to Python installation
-   - Select python.exe for its icon
+- Check GitHub releases for updates
+- Enable auto-update in settings (recommended)
+- Star the repository to get notifications
 
 ## License
 
