@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnippingCalc - OCR Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .capture-area {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            cursor: crosshair;
+        }
+        .selection {
+            position: absolute;
+            border: 2px solid #3B82F6;
+            background: rgba(59, 130, 246, 0.1);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">SnippingCalc</h1>
+                <p class="text-gray-600">Capture numbers from your screen and calculate instantly</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div class="text-center mb-6">
+                    <button id="captureBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        Start Capture
+                    </button>
+                </div>
+
+                <div id="results" class="hidden">
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Results</h2>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm text-gray-600 mb-1">SUM</div>
+                                <div id="sum" class="text-2xl font-bold text-gray-800">0</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm text-gray-600 mb-1">AVG</div>
+                                <div id="avg" class="text-2xl font-bold text-gray-800">0</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="text-sm text-gray-600 mb-1">COUNT</div>
+                                <div id="count" class="text-2xl font-bold text-gray-800">0</div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="text-sm text-gray-600 mb-2">Detected Numbers:</div>
+                            <div id="numbers" class="text-gray-800 bg-gray-50 p-3 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-blue-800 mb-2">How to use:</h3>
+                <ol class="list-decimal list-inside text-blue-700 space-y-2">
+                    <li>Click the "Start Capture" button</li>
+                    <li>Click and drag to select the area containing numbers</li>
+                    <li>Release to capture and calculate</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div id="captureArea" class="capture-area">
+        <div id="selection" class="selection"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let isCapturing = false;
+            let startX, startY;
+            const captureArea = document.getElementById('captureArea');
+            const selection = document.getElementById('selection');
+            const captureBtn = document.getElementById('captureBtn');
+
+            captureBtn.addEventListener('click', () => {
+                captureArea.style.display = 'block';
+            });
+
+            captureArea.addEventListener('mousedown', (e) => {
+                isCapturing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                selection.style.left = startX + 'px';
+                selection.style.top = startY + 'px';
+                selection.style.width = '0px';
+                selection.style.height = '0px';
+                selection.style.display = 'block';
+            });
+
+            captureArea.addEventListener('mousemove', (e) => {
+                if (!isCapturing) return;
+                const width = e.clientX - startX;
+                const height = e.clientY - startY;
+                selection.style.width = Math.abs(width) + 'px';
+                selection.style.height = Math.abs(height) + 'px';
+                selection.style.left = (width < 0 ? e.clientX : startX) + 'px';
+                selection.style.top = (height < 0 ? e.clientY : startY) + 'px';
+            });
+
+            captureArea.addEventListener('mouseup', async () => {
+                if (!isCapturing) return;
+                isCapturing = false;
+
+                const rect = selection.getBoundingClientRect();
+                captureArea.style.display = 'none';
+                selection.style.display = 'none';
+
+                try {
+                    const canvas = await html2canvas(document.body, {
+                        x: rect.left,
+                        y: rect.top,
+                        width: rect.width,
+                        height: rect.height,
+                        backgroundColor: null
+                    });
+
+                    const imageData = canvas.toDataURL('image/png');
+                    const response = await fetch('/process', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `image=${encodeURIComponent(imageData)}`
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('results').classList.remove('hidden');
+                        document.getElementById('sum').textContent = data.stats.SUM.toFixed(2);
+                        document.getElementById('avg').textContent = data.stats.AVG.toFixed(2);
+                        document.getElementById('count').textContent = data.stats.COUNT;
+                        document.getElementById('numbers').textContent = data.numbers.map(n => n.toFixed(2)).join(', ');
+                    } else {
+                        alert(data.error || 'Failed to process image');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error processing image: ' + error.message);
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    isCapturing = false;
+                    captureArea.style.display = 'none';
+                    selection.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
